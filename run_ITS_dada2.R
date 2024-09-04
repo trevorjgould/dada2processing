@@ -1,4 +1,5 @@
 library(dada2)
+args = commandArgs(trailingOnly=TRUE)
 path <- (".")
 list.files(path)
 # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
@@ -14,9 +15,16 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # ITSs
+quality=args[1]
+# good quality
+if (quality == "good"){
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN = 0, maxEE = c(2, 2), truncQ = 2, minLen = 100, rm.phix = TRUE, compress = TRUE, multithread = TRUE)
 # poor quality
-#out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN = 0, maxEE = c(2, 4), truncQ = 2, minLen = 100, truncLen=c(240,175), rm.phix = TRUE, compress = TRUE, multithread = TRUE)
+}
+# bad quality
+if (quality == "bad"){
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxN = 0, maxEE = c(2, 4), truncQ = 2, minLen = 100, truncLen=c(240,175), rm.phix = TRUE, compress = TRUE, multithread = TRUE)
+}
 head(out)
 #dereplicate reads
 derep_forward <- derepFastq(filtFs, verbose=TRUE)
@@ -35,7 +43,7 @@ merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, tri
 
 seqtab <- makeSequenceTable(merged_amplicons)
 dim(seqtab)
-saveRDS(seqtab, "seqtab.rds")
+saveRDS(seqtab, "../dada2output/seqtab.rds")
 
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=8, verbose=TRUE)
 dim(seqtab.nochim)

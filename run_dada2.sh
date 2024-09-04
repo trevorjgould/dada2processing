@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 set -euo pipefail 
 usage() { echo "Usage: $0 [-m < 16S|ITS|18S>] [-q <good|bad>]" 1>&2; exit 1; }
 Help(){
@@ -10,19 +10,24 @@ Help(){
 }	
 
 quality=good
-while getopts "m:q" OPTION; 
+while getopts "m:q:" OPTION; 
 do
     case $OPTION in
         m)
-            if [[$OPTARG = ~ ^(16S|ITS|18S) $ ]]; then
-            method=${OPTARG}
+            if [[ $OPTARG =~ ^(16S|ITS|18S)$ ]]; then
+            METHOD=${OPTARG}
             else 
             echo "-m must be one of 16S|ITS|18S"
                 exit 2
             fi
             ;;
         q)
-            quality=${OPTARG}
+            if [[ $OPTARG =~ ^(good|bad)$ ]]; then
+            QUALITY=${OPTARG}
+            else 
+            echo "-q must be one of good|bad"
+            	exit 2
+            fi
             ;;
         \?)
         printf "Unknown option: -%s\n" $OPTARG
@@ -40,10 +45,10 @@ do
     esac
 done
 
-echo "running: $method"
-if [[$method == "16S"]] then run_16S_dada2.R $quality
+echo "running: $METHOD"
+if [[ $METHOD == "16S" ]] ; then Rscript run_16S_dada2.R $QUALITY
 fi
-if [[$method == "ITS"]] then run_ITS_dada2.R $quality
+if [[ $METHOD == "ITS" ]] ; then Rscript run_ITS_dada2.R $QUALITY
 fi
-if [[$method == "18S"]] then run_18S_dada2.R $quality
+if [[ $METHOD == "18S" ]] ; then Rscript run_18S_dada2.R $QUALITY
 fi

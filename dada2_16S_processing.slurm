@@ -6,9 +6,14 @@
 #SBATCH --mail-user=goul0109@umn.edu
 
 cd /location/of/fastq.gz/files/
-module load compatibility/mesabi-centos7
-compat-exec ./trim_16S.sh
-cd 02_filtered/
 
-module load R/4.3.0-openblas-rocky8
-Rscript ../run_16S_dada2.R
+module load parallel
+module load cutadapt
+module load R/4.4.0-openblas-rocky8
+
+mkdir dada2output
+adapter_removal.sh
+# what are the primers
+primer_trim.sh -p GTGCCAGCMGCCGCGGTAA -q GGACTACHVGGGTWTCTAAT
+# what is the quality
+run_dada2.sh 16S good

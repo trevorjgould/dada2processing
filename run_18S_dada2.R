@@ -1,4 +1,5 @@
 library(dada2)
+args = commandArgs(trailingOnly=TRUE)
 path <- (".")
 list.files(path)
 # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
@@ -13,7 +14,16 @@ filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
+quality=args[1]
+# good quality
+if (quality == "good"){
 out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncQ=5, minLen = 100, maxEE=c(2,4), matchIDs=TRUE, maxN = 0, rm.phix=TRUE, multithread=TRUE, verbose = TRUE)
+}
+# bad quality
+if (quality == "bad"){
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncQ=5, minLen = 100, maxEE=c(4,6), matchIDs=TRUE, maxN = 0, rm.phix=TRUE, multithread=TRUE, verbose = TRUE)
+}
+
 head(out)
 
 #dereplicate reads
@@ -33,7 +43,7 @@ merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, jus
 
 seqtab <- makeSequenceTable(merged_amplicons)
 dim(seqtab)
-saveRDS(seqtab, "seqtab.rds")
+saveRDS(seqtab, "../dada2output/seqtab.rds")
 
 # Assumes seqtab is your sequence table of merged sequences
 MINLEN <- 400
