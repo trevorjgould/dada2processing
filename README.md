@@ -10,9 +10,10 @@
  	
  ## Run dada2: what markergene?, what is the quality?
  run_dada2.sh [-m < 16S|ITS|18S>] [-q <good|bad>]
- 	run_16S_dada2.R / run_ITS_dada2.R / run_18S_dada2.R
+ 
+ runs: run_16S_dada2.R / run_ITS_dada2.R / run_18S_dada2.R
 
-Here is an example slurm script that does all of this:
+## Here is an example slurm script that does all of this:
 
 ```
 #!/bin/bash -l        
