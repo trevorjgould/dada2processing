@@ -4,9 +4,12 @@
  ## removes adapters
  adapter_removal.sh
  
- ## checks what the primers are: give an example pair of fastq.gz files
+ ## removes primers
+ checks what the primers are: give an example pair of fastq.gz files
+ 
  primercheck.sh sample_R1_L001.fastq.gz sample_R2_L001.fastq.gz
- 	automatically runs: primer_trim.sh which removes the found primers
+ 
+ automatically runs: primer_trim.sh which removes the found primers
  	
  ## Run dada2: what markergene?, what is the quality?
  run_dada2.sh [-m < 16S|ITS|18S>] [-q <good|bad>]
