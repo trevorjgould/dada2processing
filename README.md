@@ -1,19 +1,20 @@
 # dada2processing
- process fastq.gz to dada2 table
+ process from a directory of fastq.gz files to a dada2 table
  
- # removes adapters
+ ## removes adapters
  adapter_removal.sh
  
- # checks what the primers are: give an example pair of fastq.gz files
+ ## checks what the primers are: give an example pair of fastq.gz files
  primercheck.sh sample_R1_L001.fastq.gz sample_R2_L001.fastq.gz
  	automatically runs: primer_trim.sh which removes the found primers
  	
- # what is the quality
+ ## Run dada2: what markergene?, what is the quality?
  run_dada2.sh [-m < 16S|ITS|18S>] [-q <good|bad>]
  	run_16S_dada2.R / run_ITS_dada2.R / run_18S_dada2.R
 
 Here is an example slurm script that does all of this:
 
+```
 #!/bin/bash -l        
 #SBATCH --time=12:00:00
 #SBATCH --ntasks=64
@@ -36,3 +37,4 @@ primercheck.sh sample_R1_L001.fastq.gz sample_R2_L001.fastq.gz
 
 # what is the quality
 run_dada2.sh 16S good
+```
