@@ -34,11 +34,11 @@ module load R/4.4.0-openblas-rocky8
 
 mkdir dada2output
 
-adapter_removal.sh
+./adapter_removal.sh
 
 # what are the primers
-primercheck.sh sample_R1_L001.fastq.gz sample_R2_L001.fastq.gz
+./primercheck.sh sample_R1_L001.fastq.gz sample_R2_L001.fastq.gz
 
 # what is the quality
-run_dada2.sh 16S good
+./run_dada2.sh 16S good
 ```
