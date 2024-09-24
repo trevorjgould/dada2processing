@@ -1,6 +1,9 @@
 # dada2processing
  process from a directory of fastq.gz files to a dada2 table
  
+ ## create output directory
+ mkdir dada2output
+ 
  ## removes adapters
  adapter_removal.sh
  
