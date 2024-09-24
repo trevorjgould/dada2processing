@@ -46,9 +46,9 @@ do
 done
 
 echo "running: $METHOD"
-if [[ $METHOD == "16S" ]] ; then Rscript run_16S_dada2.R $QUALITY
+if [[ $METHOD == "16S" ]] ; then Rscript ../dada2processing/run_16S_dada2.R $QUALITY
 fi
-if [[ $METHOD == "ITS" ]] ; then Rscript run_ITS_dada2.R $QUALITY
+if [[ $METHOD == "ITS" ]] ; then Rscript ../dada2processing/run_ITS_dada2.R $QUALITY
 fi
-if [[ $METHOD == "18S" ]] ; then Rscript run_18S_dada2.R $QUALITY
+if [[ $METHOD == "18S" ]] ; then Rscript ../dada2processing/run_18S_dada2.R $QUALITY
 fi
