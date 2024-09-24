@@ -5,7 +5,7 @@ Help(){
 # Display Help
 	echo "This script starts a dada2 script"
 	echo "options:"
-	echo "-m  Method valid options: [16S|ITS|18S]"
+	echo "-m Method valid options: [16S|ITS|18S]"
 	echo "-q quality valid options: [good|bad] default(good)"
 }	
 
