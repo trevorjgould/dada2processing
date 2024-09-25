@@ -46,9 +46,10 @@ do
 done
 
 echo "running: $METHOD"
-if [[ $METHOD == "16S" ]] ; then Rscript ../dada2processing/run_16S_dada2.R $QUALITY
+BASEDIR=$(dirname "$0")
+if [[ $METHOD == "16S" ]] ; then Rscript $BASEDIR/run_16S_dada2.R $QUALITY
 fi
-if [[ $METHOD == "ITS" ]] ; then Rscript ../dada2processing/run_ITS_dada2.R $QUALITY
+if [[ $METHOD == "ITS" ]] ; then Rscript $BASEDIR/run_ITS_dada2.R $QUALITY
 fi
-if [[ $METHOD == "18S" ]] ; then Rscript ../dada2processing/run_18S_dada2.R $QUALITY
+if [[ $METHOD == "18S" ]] ; then Rscript $BASEDIR/run_18S_dada2.R $QUALITY
 fi
