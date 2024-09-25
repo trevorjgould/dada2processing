@@ -1,6 +1,11 @@
 # dada2processing
  process from a directory of fastq.gz files to a dada2 table
  
+ ## Install
+ git clone https://github.com/trevorjgould/dada2processing.git
+ 
+ add dada2processing directory to your $PATH
+ 
  ## create output directory
  mkdir dada2output
  
@@ -37,14 +42,14 @@ module load R/4.4.0-openblas-rocky8
 
 mkdir dada2output
 
-/dada2processing/adapter_removal.sh
+adapter_removal.sh
 cd 01_adapter
 
 # what are the primers
-../dada2processing/primercheck.sh sample_R1_L001.fastq.gz sample_R2_L001.fastq.gz
+primercheck.sh sample_R1_L001.fastq.gz sample_R2_L001.fastq.gz
 
 cd 02_filtered
 
 # what is the quality
-../dada2processing/run_dada2.sh 16S good
+run_dada2.sh -m 16S -q good
 ```
