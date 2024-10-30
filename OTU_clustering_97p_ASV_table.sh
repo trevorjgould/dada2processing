@@ -5,23 +5,6 @@ source /common/software/install/migrated/anaconda/python3-2023.03-libmamba/etc/p
 conda create --name vsearch -c conda-forge -c bioconda bioconda::vsearch
 conda activate vsearch
 
-R libraries required
-tidyr
-dada2
-dplyr
-data.table
-
-    YucSoil16S 
-    YucSoil18S 
-    CLIMUSHITS > vsearch done
-    fabsoil18S > done
-    fabsoilITS > vsearch done
-    fabsoil16S > done
-
-
-
-
-
 getSeqs.R
 ########################################
 # gets sequences as a fasta from .rds file
@@ -39,12 +22,16 @@ args = commandArgs(trailingOnly=TRUE)
 all.otutab <- read.delim(args[1])
 library(tidyr)
 library(dplyr)
-all.otutab[all.otutab == 0] <- NA
-melted <- all.otutab %>% pivot_longer(cols = !X.OTU.ID, names_to = c("variable"), values_to = c("value"), values_drop_na = TRUE)
-melted <- as.data.frame(melted)
-melted$variable <- gsub("sq","",melted$variable)
-melted <- melted[order(as.numeric(melted$variable)),]
-write.table(melted, file = "OTUID_SEQID.txt", sep = "\t", quote = FALSE)
+
+writeLines(paste(c("X.OTU.ID","variable","value"), collapse = "\t"), "OTUID_SEQID.txt")
+getLongform <- function(x){
+data <- reshape2::melt(all.otutab[,c(1,x)], id.vars = c("X.OTU.ID"))
+data[data==0] <- NA
+data2<-data[complete.cases(data),]
+write.table(data2,file="OTUID_SEQID.txt",append=TRUE, quote = FALSE, col.names = FALSE, row.names=FALSE, sep = "\t")
+}
+out <- lapply(2:ncol(all.otutab),getLongform)
+
 ########################################
 
 OTUmerge.R
@@ -105,3 +92,43 @@ Rscript /home/umii/goul0109/scripts/otuSeqsID.R "all.otutab.txt"
 Rscript /home/umii/goul0109/scripts/OTUmerge.R "seqtab_nochim.rds" "OTUID_SEQID.txt"
 # here you need to specify the [ITS/18S/16S] reference type
 Rscript /home/umii/goul0109/scripts/taxaFromFasta.R "all.otus.fasta" "18S"
+
+# important output files
+# OTU97percentID.txt: OTU table with Samples x OTUs and cells are counts
+# all.otus.fasta: contains all OTU centroid sequences (representative)
+# taxaID.txt: taxonomic id of representative sequences 
+
+#!/bin/bash -l
+#SBATCH --time=8:00:00
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=100g
+#SBATCH --tmp=100g
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=goul0109@umn.edu
+
+module load conda
+module load R/4.4.0-openblas-rocky8
+source /common/software/install/migrated/anaconda/python3-2023.03-libmamba/etc/profile.d/conda.sh
+conda activate vsearch
+# 1
+cd /scratch.global/goul0109/kennedy_All_Dada2_Output/YucatanSoilsITS_DADA2_OUTPUT/
+Rscript /home/umii/goul0109/scripts/getSeqs.R "seqtab_nochim.rds"
+vsearch --cluster_size sequences.fasta --threads 24 --id 0.97 --strand plus --sizein --sizeout --fasta_width 0 --uc all.clustered.uc --relabel OTU_ --centroids all.otus.fasta --otutabout all.otutab.txt
+Rscript /home/umii/goul0109/scripts/otuSeqsID.R "all.otutab.txt"
+Rscript /home/umii/goul0109/scripts/OTUmerge.R "seqtab_nochim.rds" "OTUID_SEQID.txt"
+Rscript /home/umii/goul0109/scripts/taxaFromFasta.R "all.otus.fasta" "ITS"
+# 2
+cd ../YucSoil16S_DADA2_OUTPUT/
+Rscript /home/umii/goul0109/scripts/getSeqs.R "seqtab_nochim.rds"
+vsearch --cluster_size sequences.fasta --threads 24 --id 0.97 --strand plus --sizein --sizeout --fasta_width 0 --uc all.clustered.uc --relabel OTU_ --centroids all.otus.fasta --otutabout all.otutab.txt
+Rscript /home/umii/goul0109/scripts/otuSeqsID.R "all.otutab.txt"
+Rscript /home/umii/goul0109/scripts/OTUmerge.R "seqtab_nochim.rds" "OTUID_SEQID.txt"
+Rscript /home/umii/goul0109/scripts/taxaFromFasta.R "all.otus.fasta" "16S"
+# 3
+cd ../MycoSoil18S_DADA2_OUTPUT/
+Rscript /home/umii/goul0109/scripts/getSeqs.R "seqtab_nochim.rds"
+vsearch --cluster_size sequences.fasta --threads 24 --id 0.97 --strand plus --sizein --sizeout --fasta_width 0 --uc all.clustered.uc --relabel OTU_ --centroids all.otus.fasta --otutabout all.otutab.txt
+Rscript /home/umii/goul0109/scripts/otuSeqsID.R "all.otutab.txt"
+Rscript /home/umii/goul0109/scripts/OTUmerge.R "seqtab_nochim.rds" "OTUID_SEQID.txt"
+Rscript /home/umii/goul0109/scripts/taxaFromFasta.R "all.otus.fasta" "18S"
+# 4
