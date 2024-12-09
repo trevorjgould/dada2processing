@@ -33,13 +33,13 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=8, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=8, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=TRUE, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=TRUE, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=8, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=8, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=TRUE, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=TRUE, pool="pseudo")
 
-merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, justConcatenate=TRUE)
+merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, minOverlap=10)
 
 seqtab <- makeSequenceTable(merged_amplicons)
 dim(seqtab)
