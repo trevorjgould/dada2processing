@@ -6,6 +6,8 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=goul0109@umn.edu
 
+# https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/taxonomy-guide/
+
 cd /working/Directory/
 module load ncbi_blast+
 blastn -db core_nt -query sequences.fasta -outfmt '6 qseqid sseqid evalue bitscore sgi sacc staxids sscinames scomnames stitle sblastnames sskingdoms'  -max_target_seqs 1  -max_hsps 1 -num_threads 128 > blastN_out.tab
@@ -23,6 +25,8 @@ module load R/4.4.0-openblas-rocky8
 
 # get accession numbers
 awk '{print $7}' blastN_out.tab > asc.txt
+# remove rest of line after ; in any row with a ;
+sed -i 's/;.*//g' asc.txt
 
 # get taxonomies from accession numbers
 /home/umii/goul0109/bbmap/taxonomy.sh tree=/home/umii/goul0109/tree.taxtree.gz in=asc.txt out=all_taxa.txt
@@ -32,9 +36,9 @@ sed -i '1,4d' all_taxa.txt
 
 # reformat output into a table
 mkdir temp_split
-awk -v RS= '{print > ("temp_split/taxa-" NR ".txt")}' all_taxa.txt
+awk -v RS= '{print > ("temp_split/" NR ".txt")}' all_taxa.txt
 cd temp_split
-for file in taxa*; do 
+for file in *.txt; do 
 base=$(basename "$file" '.txt')
 cat $file | 
 tac | 

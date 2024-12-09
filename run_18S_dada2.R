@@ -46,12 +46,17 @@ dim(seqtab)
 saveRDS(seqtab, "../dada2output/seqtab.rds")
 
 # Assumes seqtab is your sequence table of merged sequences
-MINLEN <- 400
-MAXLEN <- 600
-seqlens <- nchar(getSequences(seqtab))
-seqtab.filt <- seqtab[,seqlens >= MINLEN & seqlens <= MAXLEN]
+#MINLEN <- 400
+#MAXLEN <- 600
+#seqlens <- nchar(getSequences(seqtab))
+#seqtab.filt <- seqtab[,seqlens >= MINLEN & seqlens <= MAXLEN]
+#seqtab.nochim <- removeBimeraDenovo(seqtab.filt, method="consensus", multithread=TRUE, verbose=TRUE)
 
-seqtab.nochim <- removeBimeraDenovo(seqtab.filt, method="consensus", multithread=TRUE, verbose=TRUE)
+seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
+
+lname <- nchar(colnames(seqtab.nochim))
+summary(lname)
+
 dim(seqtab.nochim)
 saveRDS(seqtab.nochim, "../dada2output/seqtab_nochim.rds")
 uniquesToFasta(seqtab.nochim, fout = "../dada2output/sequences.fasta")

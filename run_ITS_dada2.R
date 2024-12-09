@@ -48,7 +48,7 @@ saveRDS(seqtab, "../dada2output/seqtab.rds")
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=8, verbose=TRUE)
 dim(seqtab.nochim)
 lname <- nchar(colnames(seqtab.nochim))
-seqtab.nochim <- seqtab.nochim[,(lname > 280)]
+summary(lname)
 saveRDS(seqtab.nochim, "../dada2output/seqtab_nochim.rds")
 
 uniquesToFasta(seqtab.nochim, fout = "../dada2output/sequences.fasta")
