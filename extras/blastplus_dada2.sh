@@ -60,6 +60,13 @@ Rscript /home/umii/goul0109/scripts/long2wide.R long.txt
 args = commandArgs(trailingOnly=TRUE)
 intab <- read.delim(args[1], header=FALSE)
 outtab <- reshape2::dcast(intab, V3 ~ factor(V1,levels=c("kingdom","phylum","class","order","family","genus","species")), value.var = "V2", na.rm = FALSE)
+# errors in the previous command can occur if the levels of V1 are different
+# solution 1
+# need to see what the levels are:
+unique(intab$V1)
+# need to add the missing levels in the appropriate location on the hierarchy
+outtab <- reshape2::dcast(intab, V3 ~ factor(V1,levels=c("kingdom","phylum","class","order","family","genus","species group","species","no rank")), value.var = "V2", na.rm = FALSE)
+
 colnames(outtab)[1] <- "SpeciesID"
 write.table(outtab, file = "wideformat.txt", sep = "\t", quote = FALSE, rownames = FALSE)
 #########################################################################

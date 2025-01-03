@@ -78,6 +78,31 @@ bootout <- taxa$boot
 write.table(taxout, file = "taxaID.txt", sep = "\t", quote = FALSE)
 write.table(bootout, file = "taxaIDbootstrap.txt", sep = "\t", quote = FALSE)
 ########################################
+OTU97percentID <- read.delim("OTU97percentID.txt")
+taxaID <- read.delim("taxaID.txt")
+taxaID$OTU.ID <- paste0("OTU_",1:nrow(OTU97percentID))
+both <- merge(OTU97percentID,taxaID, by = "OTU.ID")
+write.table(both, file = "OTU97percentID_taxa.txt", sep = "\t", quote = FALSE, row.names = FALSE)
+
+# reordering by sum of row
+OTU97percentID_taxa <- read.delim("OTU97percentID_taxa.txt")
+OTU97percentID_taxa$SUMS <- rowSums(OTU97percentID_taxa[,c(2:224)])
+sortedBoth <- OTU97percentID_taxa[order(OTU97percentID_taxa$SUMS, decreasing = TRUE),]
+sortedBoth = sortedBoth[,-c(ncol(sortedBoth))]
+write.table(sortedBoth, file = "OTU97percentID_taxa_sorted.txt", sep = "\t", quote = FALSE, row.names = FALSE)
+
+########################################
+OTU97percentID <- read.delim("OTU97percentID.txt")
+blastN_out <- read.delim("blastN_out.tab", header=FALSE)
+blastN_out <- blastN_out %>% tidyr::separate(V1, into = c("OTU.ID", "size"), sep = ";")
+both <- merge(OTU97percentID,blastN_out, by = "OTU.ID", all = TRUE)
+write.table(both, file = "OTU97percentID_blast.txt", sep = "\t", quote = FALSE, row.names = FALSE)
+
+# reordering by sum of row
+both$SUMS <- rowSums(both[,c(2:224)])
+sortedBoth <- both[order(both$SUMS, decreasing = TRUE),]
+sortedBoth = sortedBoth[,-c(ncol(sortedBoth))]
+write.table(sortedBoth, file = "OTU97percentID_blast_sorted.txt", sep = "\t", quote = FALSE, row.names = FALSE)
 
 Running pipeline
 ########################################
