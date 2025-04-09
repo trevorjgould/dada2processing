@@ -48,9 +48,8 @@ saveRDS(seqtab, "../dada2output/seqtab.rds")
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
 dim(seqtab.nochim)
 
-# remove short sequences
 lname <- nchar(colnames(seqtab.nochim))
-seqtab.nochim <- seqtab.nochim[,(lname > 240)]
+summary(lname)
 
 saveRDS(seqtab.nochim, "../dada2output/seqtab_nochim.rds")
 
