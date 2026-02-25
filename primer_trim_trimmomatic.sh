@@ -24,7 +24,7 @@ module load parallel
 
 # remove primers
 mkdir ../02_filtered  
-for i in *_R1_001.fastq.gz; do echo "cutadapt --cores 8 --pair-filter=any --minimum-length 100 --discard-untrimmed -g ${forward} -G ${reverse} -o ../02_filtered/${i//_R1_001.fastq.gz/_R1_001.fastq.gz} -p ../02_filtered/${i//_R1_001.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
+for i in *_R1_001.paired.fastq.gz; do echo "cutadapt --cores 8 --pair-filter=any --minimum-length 100 --discard-untrimmed -g ${forward} -G ${reverse} -o ../02_filtered/${i//_R1_001.paired.fastq.gz/_R1_001.fastq.gz} -p ../02_filtered/${i//_R1_001.paired.fastq.gz/_R2_001.fastq.gz} ${i} ${i//_R1_/_R2_} > ../02_filtered/cutadapt.${i//_R1_001.paired.fastq.gz/.adapter.log.txt}" >> run_cutadapt2.cmd; done
 
 chmod +x run_cutadapt2.cmd
 parallel < run_cutadapt2.cmd

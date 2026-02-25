@@ -15,15 +15,15 @@ names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
 # 16s
-quality=args[1]
+#quality=args[1]
 # good quality
-if (quality == "good"){
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,160), maxN=0, maxEE=c(2,2), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=128)
-}
-if (quality == "bad"){
+#if (quality == "good"){
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,220), maxN=0, maxEE=c(2,2), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=TRUE)
+#}
+#if (quality == "bad"){
 # bad quality
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,160), maxN=0, maxEE=c(4,6), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
-}
+#out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(260,260), maxN=0, maxEE=c(4,6), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
+#}
 head(out)
 
 #dereplicate reads

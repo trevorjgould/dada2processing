@@ -22,7 +22,7 @@ done
           break 2
         exit
 fi
-done < ../dada2processing/list_to_search_R1.txt
+done < /users/4/goul0109/dada2processing/list_to_search_R1.txt
 
         while IFS=' ' read -r PRIME LOC || [ -n "${PRIME}" ]; do
         check=$(zgrep --max-count=100 -c ${PRIME} $2);
@@ -32,7 +32,7 @@ done < ../dada2processing/list_to_search_R1.txt
             break 2
          exit
     fi
-    done < ../dada2processing/list_to_search_R2.txt
+    done < /users/4/goul0109/dada2processing/list_to_search_R2.txt
 echo "recommended primer trimming command:"
 echo "../dada2processing/primer_trim.sh -p ${R1} -q ${R2}"
 

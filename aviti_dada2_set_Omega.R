@@ -14,16 +14,7 @@ filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz"))
 names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
-# 16s
-quality=args[1]
-# good quality
-if (quality == "good"){
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,160), maxN=0, maxEE=c(2,2), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=128)
-}
-if (quality == "bad"){
-# bad quality
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,160), maxN=0, maxEE=c(4,6), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
-}
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,160), maxN=0, maxEE=c(2,2), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=TRUE)
 head(out)
 
 #dereplicate reads
@@ -36,14 +27,15 @@ names(derep_reverse) <- sample.names
 errF <- learnErrors(derep_forward, multithread=TRUE, randomize=TRUE)
 errR <- learnErrors(derep_reverse, multithread=TRUE, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=TRUE, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=TRUE, pool="pseudo")
+omegaset = paste0("1e-",args[1])
+dadaFs <- dada(derep_forward, err=errF, multithread=TRUE, pool="pseudo", OMEGA_A=omegaset)
+dadaRs <- dada(derep_reverse, err=errR, multithread=TRUE, pool="pseudo", OMEGA_A=omegaset)
 
 merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=20)
 
 seqtab <- makeSequenceTable(merged_amplicons)
 dim(seqtab)
-saveRDS(seqtab, "../dada2output/seqtab.rds")
+saveRDS(seqtab, "/seqtab.rds")
 
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
 dim(seqtab.nochim)
@@ -51,7 +43,8 @@ dim(seqtab.nochim)
 lname <- nchar(colnames(seqtab.nochim))
 summary(lname)
 
-saveRDS(seqtab.nochim, "../dada2output/seqtab_nochim.rds")
+filename1 = paste0("seqtab_nochim_omega",args[1],".rds")
+saveRDS(seqtab.nochim, filename1)
 
   # set a little function
 getN <- function(x) sum(getUniques(x))
@@ -59,23 +52,30 @@ getN <- function(x) sum(getUniques(x))
   # making a little table
 summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                filtered=out[,2], dada_f=sapply(dadaFs, getN),
-               dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
-write.table(summary_tab, file = "../dada2output/sequence_process_summary.txt", sep = "\t", quote=FALSE)
+               dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN
+               ),nonchim=rowSums(seqtab.nochim))
+filename2 = paste0("sequence_process_summary_omega",args[1],".txt")
+write.table(summary_tab, file = filename2, sep = "\t", quote=FALSE)
 
-seqtab.nochim <- readRDS("../dada2output/seqtab_nochim.rds")
-uniquesToFasta(seqtab.nochim, fout = "../dada2output/sequences.fasta")
+seqtab.nochim <- readRDS(filename1)
+
+filename3 = paste0("sequences_omega",args[1],".fasta")
+uniquesToFasta(seqtab.nochim, fout = filename3)
 
 #TAXONOMY
-taxasilva <- assignTaxonomy(seqtab.nochim, "/common/bioref/microbiome/dada2_taxonomy_references/silva_nr99_v138.1_train_set.fa", multithread=TRUE, outputBootstraps = TRUE)
+taxasilva <- assignTaxonomy(seqtab.nochim, "/home/umii/public/dada2_taxonomy_references/silva_nr99_v138.1_train_set.fa", multithread=TRUE, outputBootstraps = TRUE)
 taxout <- taxasilva$tax
 bootout <- taxasilva$boot
-saveRDS(taxout, file = "../dada2output/taxIDsilva.rds")
-saveRDS(bootout, file = "../dada2output/taxIDsilva_bootstrap.rds")
 
-#saveRDS(taxasilva$tax, file = "taxIDsilva.rds")
-#saveRDS(taxasilva$boot, file = "taxIDsilva_bootstrap.rds")
+filename4 = paste0("taxIDsilva_omega",args[1],".rds")
+filename5 = paste0("taxIDsilva_bootstrap_omega",args[1],".rds")
+saveRDS(taxout, file = filename4)
+saveRDS(bootout, file = filename5)
 
 both1 <- cbind(t(seqtab.nochim),taxasilva$tax, taxasilva$boot)
 both2 <- cbind(t(seqtab.nochim),taxasilva$tax)
-write.table(both1, file = "../dada2output/16S_combined_sequences_taxa_silva_boot.txt", sep = "\t", quote = FALSE, col.names=NA)
-write.table(both2, file = "../dada2output/16S_combined_sequences_taxa_silva.txt", sep = "\t", quote = FALSE, col.names=NA)
+
+filename6 = paste0("16S_omega",args[1],"_combined_sequences_taxa_silva_boot.txt")
+filename7 = paste0("16S_omega",args[1],"_combined_sequences_taxa_silva.txt")
+write.table(both1, file = filename6, sep = "\t", quote = FALSE, col.names=NA)
+write.table(both2, file = filename7, sep = "\t", quote = FALSE, col.names=NA)

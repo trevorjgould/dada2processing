@@ -18,11 +18,11 @@ names(filtRs) <- sample.names
 quality=args[1]
 # good quality
 if (quality == "good"){
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,160), maxN=0, maxEE=c(2,2), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=128)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(260,260), maxN=0, maxEE=c(2,2), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=128)
 }
 if (quality == "bad"){
 # bad quality
-out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(240,160), maxN=0, maxEE=c(4,6), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, truncLen=c(260,260), maxN=0, maxEE=c(4,6), minLen = 100, truncQ=2, rm.phix=TRUE, compress=TRUE, multithread=8)
 }
 head(out)
 
@@ -33,11 +33,11 @@ derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
 # error models
-errF <- learnErrors(derep_forward, multithread=TRUE, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=TRUE, randomize=TRUE)
+errF <- learnErrors(derep_forward, multithread=128, randomize=TRUE)
+errR <- learnErrors(derep_reverse, multithread=128, randomize=TRUE)
 
-dadaFs <- dada(derep_forward, err=errF, multithread=TRUE, pool="pseudo")
-dadaRs <- dada(derep_reverse, err=errR, multithread=TRUE, pool="pseudo")
+dadaFs <- dada(derep_forward, err=errF, multithread=128, pool="pseudo")
+dadaRs <- dada(derep_reverse, err=errR, multithread=128, pool="pseudo")
 
 merged_amplicons <- mergePairs(dadaFs, derep_forward, dadaRs, derep_reverse, trimOverhang=TRUE, minOverlap=20)
 
@@ -66,7 +66,7 @@ seqtab.nochim <- readRDS("../dada2output/seqtab_nochim.rds")
 uniquesToFasta(seqtab.nochim, fout = "../dada2output/sequences.fasta")
 
 #TAXONOMY
-taxasilva <- assignTaxonomy(seqtab.nochim, "/common/bioref/microbiome/dada2_taxonomy_references/silva_nr99_v138.1_train_set.fa", multithread=TRUE, outputBootstraps = TRUE)
+taxasilva <- assignTaxonomy(seqtab.nochim, "/home/umii/public/dada2_taxonomy_references/silva_nr99_v138.1_train_set.fa", multithread=128, outputBootstraps = TRUE)
 taxout <- taxasilva$tax
 bootout <- taxasilva$boot
 saveRDS(taxout, file = "../dada2output/taxIDsilva.rds")

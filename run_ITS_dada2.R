@@ -3,8 +3,8 @@ args = commandArgs(trailingOnly=TRUE)
 path <- (".")
 list.files(path)
 # Forward and reverse fastq filenames have format: SAMPLENAME_R1_001.fastq and SAMPLENAME_R2_001.fastq
-fnFs <- sort(list.files(path, pattern="_R1_001.fastq.gz", full.names = TRUE))
-fnRs <- sort(list.files(path, pattern="_R2_001.fastq.gz", full.names = TRUE))
+fnFs <- sort(list.files(path, pattern="_R1_001.paired.fastq.gz", full.names = TRUE))
+fnRs <- sort(list.files(path, pattern="_R2_001.paired.fastq.gz", full.names = TRUE))
 # Extract sample names, assuming filenames have format: SAMPLENAME_XXX.fastq
 sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
 
@@ -62,7 +62,7 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "../dada2output/sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
-ref <- "/home/umii/public/dada2_taxonomy_references/sh_general_release_dynamic_all_04.04.2024.fasta"
+ref <- "/common/bioref/microbiome/dada2_taxonomy_references/sh_general_release_dynamic_all_19.02.2025.fasta"
 taxa <- assignTaxonomy(seqtab.nochim, ref, multithread = TRUE, outputBootstraps = TRUE)
 
 taxout <- taxa$tax

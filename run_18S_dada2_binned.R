@@ -32,9 +32,18 @@ names(derep_forward) <- sample.names # the sample names in these objects are ini
 derep_reverse <- derepFastq(filtRs, verbose=TRUE)
 names(derep_reverse) <- sample.names
 
+# get string of qualities
+files <- list.files(pattern = "\\.fastq.gz$")
+fastq <- readFastq(files[1])
+quals <- quality(fastq)
+# Convert to a character matrix of ASCII-encoded quality characters
+qual_chars <- as(quals, "matrix")
+binned_Qs <- unique(as.vector((qual_chars)))
+BQEF <- makeBinnedQualErrfun(binned_Qs)
+
 # error models
-errF <- learnErrors(derep_forward, multithread=TRUE, randomize=TRUE)
-errR <- learnErrors(derep_reverse, multithread=TRUE, randomize=TRUE)
+errF <- learnErrors(derep_forward, errorEstimationFunction=BQEF, multithread=TRUE, randomize=TRUE)
+errR <- learnErrors(derep_reverse, errorEstimationFunction=BQEF, multithread=TRUE, randomize=TRUE)
 
 dadaFs <- dada(derep_forward, err=errF, multithread=TRUE, pool="pseudo")
 dadaRs <- dada(derep_reverse, err=errR, multithread=TRUE, pool="pseudo")
@@ -70,24 +79,13 @@ summary_tab <- data.frame(row.names=sample.names, dada2_input=out[,1],
                dada_r=sapply(dadaRs, getN), merged=sapply(merged_amplicons, getN),nonchim=rowSums(seqtab.nochim))
 write.table(summary_tab, file = "../dada2output/sequence_process_summary.txt", sep = "\t", quote=FALSE)
 
-taxrefmaarjam <- "/common/bioref/microbiome/dada2_taxonomy_references/maarjam_dada2.txt"
-taxamaarjam <- assignTaxonomy(seqtab.nochim, taxrefmaarjam, tryRC = TRUE, taxLevels = c("Class", "Order", "Family", "Genus", "Species"), multithread = TRUE, outputBootstraps = TRUE)
-taxout <- taxamaarjam$tax
-bootout <- taxamaarjam$boot
+taxrefa <- "/home/umii/public/dada2_taxonomy_references/maarjam_dada2.txt"
+taxa <- assignTaxonomy(seqtab.nochim, taxrefa, tryRC = TRUE, taxLevels = c("Class", "Order", "Family", "Genus", "Species"), multithread = TRUE, outputBootstraps = TRUE)
+taxout <- taxa$tax
+bootout <- taxa$boot
 saveRDS(taxout, file = "../dada2output/taxIDmaar.rds")
 saveRDS(bootout, file = "../dada2output/taxIDmaar_bootstrap.rds")
-both1m <- cbind(t(seqtab.nochim),taxout,bootout)
-write.table(both1m, file = "../dada2output/18S_combined_sequences_taxamaar_bootstrap.txt", sep = "\t", quote = FALSE, col.names=NA)
-both2m <- cbind(t(seqtab.nochim),taxout)
-write.table(both2m, file = "../dada2output/18S_combined_sequences_taxamaar.txt", sep = "\t", quote = FALSE, col.names=NA)
-
-taxrefeuk <- "/users/4/goul0109/dada2processing/DADA2_EUK_ITS_v2.0.fasta"
-taxaeuk <- assignTaxonomy(seqtab.nochim, taxrefeuk, tryRC = TRUE, taxLevels = c("Kingdom","Phylum","Class", "Order", "Family", "Genus", "Species"), multithread = TRUE, outputBootstraps = TRUE)
-taxout <- taxaeuk$tax
-bootout <- taxaeuk$boot
-saveRDS(taxout, file = "../dada2output/taxIDeuk.rds")
-saveRDS(bootout, file = "../dada2output/taxIDeuk_bootstrap.rds")
-both1e <- cbind(t(seqtab.nochim),taxout,bootout)
-write.table(both1e, file = "../dada2output/18S_combined_sequences_taxaeuk_bootstrap.txt", sep = "\t", quote = FALSE, col.names=NA)
-both2e <- cbind(t(seqtab.nochim),taxout)
-write.table(both2e, file = "../dada2output/18S_combined_sequences_taxaeuk.txt", sep = "\t", quote = FALSE, col.names=NA)
+both1 <- cbind(t(seqtab.nochim),taxout,bootout)
+write.table(both1, file = "../dada2output/18S_combined_sequences_taxamaar_bootstrap.txt", sep = "\t", quote = FALSE, col.names=NA)
+both2 <- cbind(t(seqtab.nochim),taxout)
+write.table(both2, file = "../dada2output/18S_combined_sequences_taxamaar.txt", sep = "\t", quote = FALSE, col.names=NA)
