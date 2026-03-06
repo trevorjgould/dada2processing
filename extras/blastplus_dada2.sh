@@ -6,7 +6,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=goul0109@umn.edu
 
-# https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/taxonomy-guide/
+# https://archive.jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/taxonomy-guide/
 
 cd /working/Directory/
 module load ncbi_blast+
@@ -68,7 +68,19 @@ unique(intab$V1)
 outtab <- reshape2::dcast(intab, V3 ~ factor(V1,levels=c("kingdom","phylum","class","order","family","genus","species group","species","no rank")), value.var = "V2", na.rm = FALSE)
 
 colnames(outtab)[1] <- "SpeciesID"
-write.table(outtab, file = "wideformat.txt", sep = "\t", quote = FALSE, rownames = FALSE)
+write.table(outtab, file = "wideformat.txt", sep = "\t", quote = FALSE, row.names = FALSE)
 #########################################################################
+
+# 1. Replace all tabs with an underscore
+tr '\t' '_' < all_taxa.txt > temp.txt
+
+# 2. Replace all newlines with a double tab
+tr '\n' '\t\t' < temp.txt > temp2.txt
+
+# 3. Replace all occurrences of two consecutive tabs with a newline
+sed 's/\t\t/\n/g' temp2.txt > output.txt
+
+# 4 combine ID from blastN with output
+awk -F, '{getline f1 <"blastN_out.tab" ;print f1,$0}' OFS=, output.txt > newout.txt
 
 
